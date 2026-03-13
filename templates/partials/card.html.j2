@@ -1,0 +1,19 @@
+{# Reusable metric card partial.
+   Args: id, title, value, subtitle (optional), chart_id (optional), color (optional)
+#}
+<div class="card" id="card-{{ id }}">
+  <div class="card-header">
+    <h3>{{ title }}</h3>
+  </div>
+  <div class="card-body">
+    <div class="card-value">{{ value if value is not none else "—" }}</div>
+    {% if subtitle %}
+    <div class="card-subtitle">{{ subtitle }}</div>
+    {% endif %}
+    {% if chart_id %}
+    <div class="card-chart">
+      <canvas id="{{ chart_id }}" height="80"></canvas>
+    </div>
+    {% endif %}
+  </div>
+</div>

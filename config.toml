@@ -1,0 +1,28 @@
+[repo]
+owner = "open-telemetry"
+name = "opentelemetry-rust"
+
+[dashboard]
+title = "OpenTelemetry Rust — Project Health"
+lookback_days = 30
+
+[maintainers]
+github = ["cijothomas", "hdost", "lalitb", "utpilla", "TommyCpp"]
+
+[approvers]
+github = ["gruebel", "bantonsson", "scottgerring", "shaun-cox"]
+
+[slack]
+# Set SLACK_TOKEN env var to enable
+channel = "otel-rust"
+# Map GitHub usernames to Slack handles if needed
+# [slack.handle_map]
+# cijothomas = "cijo"
+
+[codecov]
+# Uses public API; set CODECOV_TOKEN for private repos
+slug = "open-telemetry/opentelemetry-rust"
+
+[benchmarks]
+gh_pages_branch = "gh-pages"
+data_path = "dev/bench/data.js"
