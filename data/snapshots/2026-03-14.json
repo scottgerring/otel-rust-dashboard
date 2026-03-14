@@ -1,0 +1,146 @@
+{
+  "date": "2026-03-14",
+  "community": {
+    "issues": {
+      "open_count": 219,
+      "triage_todo_count": 27,
+      "median_triage_days_30d": 750.9,
+      "triage_sample_size_30d": 7,
+      "median_triage_days_1y": 568.2,
+      "triage_sample_size_1y": 11
+    },
+    "prs": {
+      "open_count": 79,
+      "merged_30d": 27,
+      "median_review_rounds": 1,
+      "median_hours_to_first_review": 8.6,
+      "median_hours_to_merge": 29.0
+    },
+    "releases": {
+      "latest": "v0.31.0",
+      "latest_date": "2025-09-26",
+      "median_interval_days": 52.0,
+      "releases": [
+        {
+          "tag": "v0.31.0",
+          "date": "2025-09-26",
+          "prerelease": false
+        },
+        {
+          "tag": "opentelemetry-0.30.0",
+          "date": "2025-05-23",
+          "prerelease": false
+        },
+        {
+          "tag": "opentelemetry-0.29.0",
+          "date": "2025-03-25",
+          "prerelease": false
+        },
+        {
+          "tag": "opentelemetry-0.28.0",
+          "date": "2025-02-10",
+          "prerelease": false
+        },
+        {
+          "tag": "opentelemetry_sdk-0.27.1",
+          "date": "2024-11-27",
+          "prerelease": true
+        },
+        {
+          "tag": "opentelemetry-0.27.1",
+          "date": "2024-11-27",
+          "prerelease": true
+        },
+        {
+          "tag": "opentelemetry-0.27.0",
+          "date": "2024-11-12",
+          "prerelease": false
+        },
+        {
+          "tag": "v0.26.1",
+          "date": "2024-10-08",
+          "prerelease": true
+        },
+        {
+          "tag": "opentelemetry-0.26.0",
+          "date": "2024-10-01",
+          "prerelease": true
+        },
+        {
+          "tag": "opentelemetry-0.25.0",
+          "date": "2024-09-09",
+          "prerelease": true
+        }
+      ]
+    },
+    "milestones": null,
+    "slack": null
+  },
+  "project": {
+    "ci": {
+      "benchmark": {
+        "pass_rate_30d": 0.829,
+        "total_runs": 35,
+        "passed": 29,
+        "median_duration_min": 28.7
+      },
+      "CI": {
+        "pass_rate_30d": 0.719,
+        "total_runs": 32,
+        "passed": 23,
+        "median_duration_min": 8.6
+      },
+      "CodeQL Analysis": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 33,
+        "passed": 33,
+        "median_duration_min": 8.4
+      },
+      "FOSSA scanning": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 26,
+        "passed": 26,
+        "median_duration_min": 0.7
+      },
+      "integration tests": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 8,
+        "passed": 8,
+        "median_duration_min": 3.5
+      },
+      "Markdown link check": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 17,
+        "passed": 17,
+        "median_duration_min": 1.4
+      },
+      "OSSF Scorecard": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 30,
+        "passed": 30,
+        "median_duration_min": 0.9
+      },
+      "PR Conventional Commit Validation": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 13,
+        "passed": 13,
+        "median_duration_min": 0.4
+      },
+      "Semver compliance": {
+        "pass_rate_30d": 0.0,
+        "total_runs": 8,
+        "passed": 0,
+        "median_duration_min": null
+      },
+      "Dependabot Updates": {
+        "pass_rate_30d": 1.0,
+        "total_runs": 3,
+        "passed": 3,
+        "median_duration_min": 0.5
+      }
+    },
+    "coverage_pct": null,
+    "benchmarks": null,
+    "cargo_deny": null
+  }
+}
