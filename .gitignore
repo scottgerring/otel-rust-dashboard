@@ -10,3 +10,4 @@ node_modules/
 test-results/
 playwright-report/
 node_modules
+.claude
