@@ -85,7 +85,7 @@
             "number": 2419,
             "title": "[Feature]: support for esp32 / 32 bit applications",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2419",
-            "sort_value": 459.0,
+            "sort_value": 459.1,
             "extra": {
               "status": "Awaiting Triage"
             }
@@ -94,7 +94,7 @@
             "number": 2472,
             "title": "[Feature]: Ability to override/provide time_unix_nano whenm creating metric",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2472",
-            "sort_value": 444.8,
+            "sort_value": 444.9,
             "extra": {
               "status": "Awaiting Triage"
             }
@@ -655,7 +655,7 @@
             "number": 2419,
             "title": "[Feature]: support for esp32 / 32 bit applications",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2419",
-            "sort_value": 459.0,
+            "sort_value": 459.1,
             "extra": {
               "status": "Awaiting Triage"
             }
@@ -664,7 +664,7 @@
             "number": 2472,
             "title": "[Feature]: Ability to override/provide time_unix_nano whenm creating metric",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2472",
-            "sort_value": 444.8,
+            "sort_value": 444.9,
             "extra": {
               "status": "Awaiting Triage"
             }
@@ -1720,7 +1720,7 @@
             "number": 602,
             "title": "Allow span processor to keep reference of spans",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/602",
-            "sort_value": 1695.3,
+            "sort_value": 1695.4,
             "extra": {
               "labels": "A-trace, triage:todo"
             }
@@ -1855,7 +1855,7 @@
             "number": 954,
             "title": "Some questions about trace/sampler/jaeger_remote",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/954",
-            "sort_value": 1146.7,
+            "sort_value": 1146.8,
             "extra": {
               "labels": "documentation/examples, help wanted, A-trace"
             }
@@ -2332,7 +2332,7 @@
             "number": 1890,
             "title": "Add Configuration Option in OTLP Log Exporter to Prevent Overriding scope.name with logrecord.target",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/1890",
-            "sort_value": 634.6,
+            "sort_value": 634.7,
             "extra": {
               "labels": ""
             }
@@ -2548,7 +2548,7 @@
             "number": 2297,
             "title": "Add simple sharding in `ValueMap` to boost metrics update performance under stress.",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2297",
-            "sort_value": 489.5,
+            "sort_value": 489.6,
             "extra": {
               "labels": ""
             }
@@ -2620,7 +2620,7 @@
             "number": 2419,
             "title": "[Feature]: support for esp32 / 32 bit applications",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2419",
-            "sort_value": 459.0,
+            "sort_value": 459.1,
             "extra": {
               "labels": "enhancement, triage:todo"
             }
@@ -2644,6 +2644,15 @@
             }
           },
           {
+            "number": 2450,
+            "title": "Reduce contention in Metrics updates",
+            "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2450",
+            "sort_value": 452.7,
+            "extra": {
+              "labels": "A-metrics, performance"
+            }
+          },
+          {
             "number": 2449,
             "title": "Avoid heap allocation when key value is part of (slice) of something",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2449",
@@ -2662,19 +2671,10 @@
             }
           },
           {
-            "number": 2450,
-            "title": "Reduce contention in Metrics updates",
-            "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2450",
-            "sort_value": 452.6,
-            "extra": {
-              "labels": "A-metrics, performance"
-            }
-          },
-          {
             "number": 2472,
             "title": "[Feature]: Ability to override/provide time_unix_nano whenm creating metric",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2472",
-            "sort_value": 444.8,
+            "sort_value": 444.9,
             "extra": {
               "labels": "enhancement, triage:todo"
             }
@@ -3196,7 +3196,7 @@
             "number": 2938,
             "title": "Guidance on Reusing Metric Counters Globally",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/2938",
-            "sort_value": 328.6,
+            "sort_value": 328.7,
             "extra": {
               "labels": ""
             }
@@ -3268,7 +3268,7 @@
             "number": 3045,
             "title": "Simplify opentelemetry-proto: SDK decoupling, gRPC separation",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/3045",
-            "sort_value": 258.7,
+            "sort_value": 258.8,
             "extra": {
               "labels": "M-exporter-otlp"
             }
@@ -3466,7 +3466,7 @@
             "number": 3288,
             "title": "Un-deprecate Prometheus",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/issues/3288",
-            "sort_value": 86.6,
+            "sort_value": 86.7,
             "extra": {
               "labels": "M-exporter-prometheus"
             }
@@ -3729,7 +3729,7 @@
             "number": 2765,
             "title": "refactor: change `Protocol`'s `Serialize` and `Deserialize` to use standard values",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/pull/2765",
-            "sort_value": 375.0
+            "sort_value": 375.1
           },
           {
             "number": 2788,
@@ -3789,7 +3789,7 @@
             "number": 2970,
             "title": "fix: downgrade NoopMeterProvider log to TRACE",
             "url": "https://github.com/open-telemetry/opentelemetry-rust/pull/2970",
-            "sort_value": 305.4
+            "sort_value": 305.5
           },
           {
             "number": 3005,
