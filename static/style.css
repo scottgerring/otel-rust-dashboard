@@ -71,12 +71,69 @@ section h2 {
   border-color: var(--accent-dim);
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .card-header h3 {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.card-info {
+  position: relative;
+  color: var(--text-muted);
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.card-info:hover,
+.card-info:focus {
+  opacity: 1;
+}
+
+.card-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a2d3a;
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.4;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  width: max-content;
+  max-width: 260px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.card-tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #2a2d3a;
+}
+
+.card-info:hover .card-tooltip,
+.card-info:focus .card-tooltip {
+  display: block;
 }
 
 .card-value {

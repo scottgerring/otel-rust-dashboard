@@ -37,11 +37,50 @@ query($owner: String!, $name: String!, $cursor: String) {
             author { login }
           }
         }
+        comments(first: 1) { totalCount }
+        reviewThreads(first: 100) {
+          nodes {
+            comments(first: 1) { totalCount }
+          }
+        }
       }
     }
   }
 }
 """
+
+OPEN_PRS_COMMENTS_QUERY = """
+query($owner: String!, $name: String!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    pullRequests(
+      first: 100,
+      states: OPEN,
+      orderBy: {field: UPDATED_AT, direction: DESC},
+      after: $cursor
+    ) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        number
+        comments(first: 1) { totalCount }
+        reviewThreads(first: 100) {
+          nodes {
+            comments(first: 1) { totalCount }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+
+def _count_pr_comments(pr):
+    """Count total comments on a PR (issue comments + review thread comments)."""
+    thread_comments = sum(
+        t.get("comments", {}).get("totalCount", 0)
+        for t in pr.get("reviewThreads", {}).get("nodes", [])
+    )
+    return pr.get("comments", {}).get("totalCount", 0) + thread_comments
 
 
 def _median(values):
@@ -92,6 +131,7 @@ def collect(config):
     review_rounds = []
     hours_to_first_review = []
     hours_to_merge = []
+    pr_comments_merged = []
 
     bot_logins = {"codecov", "linux-foundation-easycla", "copilot-pull-request-reviewer", "github-actions"}
 
@@ -119,10 +159,39 @@ def collect(config):
         changes_requested = sum(1 for r in reviews if r["state"] == "CHANGES_REQUESTED")
         review_rounds.append(changes_requested + 1)  # 1 round = direct approval
 
+        pr_comments_merged.append(_count_pr_comments(pr))
+
+    # Fetch open PRs for comment counts
+    open_prs = []
+    cursor = None
+    for _ in range(2):  # up to 200, covers the ~79 open PRs
+        resp = requests.post(
+            GRAPHQL_URL,
+            json={"query": OPEN_PRS_COMMENTS_QUERY, "variables": {"owner": owner, "name": name, "cursor": cursor}},
+            headers=_headers(),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        page = resp.json()["data"]["repository"]["pullRequests"]
+        open_prs.extend(page["nodes"])
+        if not page["pageInfo"]["hasNextPage"]:
+            break
+        cursor = page["pageInfo"]["endCursor"]
+
+    pr_comments_open = [_count_pr_comments(pr) for pr in open_prs]
+
     return {
         "open_count": open_count,
         "merged_30d": len(merged_prs),
         "median_review_rounds": _median(review_rounds),
+        "min_review_rounds": min(review_rounds) if review_rounds else None,
+        "max_review_rounds": max(review_rounds) if review_rounds else None,
         "median_hours_to_first_review": _median(hours_to_first_review),
         "median_hours_to_merge": _median(hours_to_merge),
+        "median_pr_comments_merged": _median(pr_comments_merged),
+        "min_pr_comments_merged": min(pr_comments_merged) if pr_comments_merged else None,
+        "max_pr_comments_merged": max(pr_comments_merged) if pr_comments_merged else None,
+        "median_pr_comments_open": _median(pr_comments_open),
+        "min_pr_comments_open": min(pr_comments_open) if pr_comments_open else None,
+        "max_pr_comments_open": max(pr_comments_open) if pr_comments_open else None,
     }

@@ -57,8 +57,39 @@ query($owner: String!, $name: String!, $cursor: String) {
 }
 """
 
+# Query 3: fetch recently closed issues to find ones closed-as-triaged
+# (had triage:todo but never triage:accepted, closed to resolve triage).
+CLOSED_TRIAGE_QUERY = """
+query($owner: String!, $name: String!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    issues(
+      first: 100,
+      states: [CLOSED],
+      orderBy: {field: UPDATED_AT, direction: DESC},
+      after: $cursor
+    ) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        number
+        createdAt
+        closedAt
+        labels(first: 10) { nodes { name } }
+        timelineItems(first: 100, itemTypes: [LABELED_EVENT]) {
+          nodes {
+            ... on LabeledEvent {
+              createdAt
+              label { name }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
 
-def _compute_triage_times(issues):
+
+def _compute_triage_times_accepted(issues):
     """Compute days from triage:todo (or issue creation) to triage:accepted."""
     triage_durations = []
     for issue in issues:
@@ -81,8 +112,54 @@ def _compute_triage_times(issues):
             if days >= 0:
                 triage_durations.append({
                     "days": round(days, 1),
-                    "accepted_at": accepted_at,
+                    "completed_at": accepted_at,
                 })
+
+    return triage_durations
+
+
+def _compute_triage_times_closed(issues, cutoff):
+    """Compute triage times for issues closed-as-triaged.
+
+    These are closed issues that had triage:todo applied but never received
+    triage:accepted. Closing the issue is the triage action.
+    """
+    triage_durations = []
+    for issue in issues:
+        closed_at_str = issue.get("closedAt")
+        if not closed_at_str:
+            continue
+        closed_at = datetime.fromisoformat(closed_at_str.replace("Z", "+00:00"))
+        if closed_at < cutoff:
+            continue
+
+        timeline = issue["timelineItems"]["nodes"]
+
+        todo_at = None
+        has_accepted = False
+        for event in timeline:
+            if not event:
+                continue
+            label_name = event.get("label", {}).get("name", "")
+            if label_name == "triage:todo" and todo_at is None:
+                todo_at = datetime.fromisoformat(event["createdAt"].replace("Z", "+00:00"))
+            elif label_name == "triage:accepted":
+                has_accepted = True
+
+        # Skip if this issue was also triage:accepted (already counted)
+        if has_accepted:
+            continue
+        # Must have had triage:todo at some point
+        if todo_at is None:
+            continue
+
+        start = todo_at
+        days = (closed_at - start).total_seconds() / 86400
+        if days >= 0:
+            triage_durations.append({
+                "days": round(days, 1),
+                "completed_at": closed_at,
+            })
 
     return triage_durations
 
@@ -114,6 +191,9 @@ def collect(config):
     open_count = counts["openIssueCount"]["totalCount"]
     triage_todo_count = counts["triageTodoCount"]["totalCount"]
 
+    now = datetime.now(timezone.utc)
+    cutoff_1y = now - timedelta(days=365)
+
     # 2. Fetch all triage:accepted issues (paginate to get them all)
     accepted_issues = []
     cursor = None
@@ -132,16 +212,39 @@ def collect(config):
             break
         cursor = page["pageInfo"]["endCursor"]
 
-    # 3. Compute triage durations from label events
-    triage_entries = _compute_triage_times(accepted_issues)
+    # 3. Fetch recently closed issues to find closed-as-triaged
+    closed_issues = []
+    cursor = None
+    for _ in range(10):  # up to 1000 issues as safety bound
+        resp = requests.post(
+            GRAPHQL_URL,
+            json={"query": CLOSED_TRIAGE_QUERY, "variables": {"owner": owner, "name": name, "cursor": cursor}},
+            headers=_headers(),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        page = resp.json()["data"]["repository"]["issues"]
+        nodes = page["nodes"]
+        closed_issues.extend(nodes)
 
-    # 4. Split into 30d and 1y windows based on when triage:accepted was applied
-    now = datetime.now(timezone.utc)
+        if not page["pageInfo"]["hasNextPage"]:
+            break
+        # Stop if we've gone past the 1y window (ordered by UPDATED_AT)
+        if nodes and nodes[-1].get("closedAt"):
+            last_closed = datetime.fromisoformat(nodes[-1]["closedAt"].replace("Z", "+00:00"))
+            if last_closed < cutoff_1y:
+                break
+        cursor = page["pageInfo"]["endCursor"]
+
+    # 4. Compute triage durations from both sources and merge
+    triage_entries = _compute_triage_times_accepted(accepted_issues)
+    triage_entries.extend(_compute_triage_times_closed(closed_issues, cutoff_1y))
+
+    # 5. Split into 30d and 1y windows
     cutoff_30d = now - timedelta(days=30)
-    cutoff_1y = now - timedelta(days=365)
 
-    durations_30d = [e["days"] for e in triage_entries if e["accepted_at"] >= cutoff_30d]
-    durations_1y = [e["days"] for e in triage_entries if e["accepted_at"] >= cutoff_1y]
+    durations_30d = [e["days"] for e in triage_entries if e["completed_at"] >= cutoff_30d]
+    durations_1y = [e["days"] for e in triage_entries if e["completed_at"] >= cutoff_1y]
 
     return {
         "open_count": open_count,

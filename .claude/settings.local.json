@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(git:*)",
+      "Bash(which node:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(source:*)",
+      "Bash(npx playwright:*)",
+      "Bash(/Users/scott.gerring/Documents/code/otel-rust-dashboard/.venv/bin/python --version 2>&1)",
+      "Bash(/Users/scott.gerring/Documents/code/otel-rust-dashboard/.venv/bin/pip install:*)",
+      "Bash(/Users/scott.gerring/Documents/code/otel-rust-dashboard/.venv/bin/python /Users/scott.gerring/Documents/code/otel-rust-dashboard/collect.py 2>&1)",
+      "Bash(/Users/scott.gerring/Documents/code/otel-rust-dashboard/.venv/bin/python /Users/scott.gerring/Documents/code/otel-rust-dashboard/render.py 2>&1)",
+      "Bash(/Users/scott.gerring/Documents/code/otel-rust-dashboard/.venv/bin/python -c \"\nimport json\nwith open\\('data/snapshots/2026-03-16.json'\\) as f:\n    prs = json.load\\(f\\)['community']['prs']\nfor k in sorted\\(prs\\):\n    if 'review_rounds' in k or 'comment' in k:\n        print\\(f'{k}: {prs[k]}'\\)\n\")",
+      "Bash(/Users/scott.gerring/Documents/code/otel-rust-dashboard/.venv/bin/python -c \"\nimport json\nwith open\\('data/snapshots/2026-03-16.json'\\) as f:\n    prs = json.load\\(f\\)['community']['prs']\nfor k in sorted\\(prs\\):\n    if 'comment' in k:\n        print\\(f'{k}: {prs[k]}'\\)\n\")"
+    ]
+  }
+}

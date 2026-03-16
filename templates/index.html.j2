@@ -26,49 +26,59 @@
 
     {# Triage velocity (30d) #}
     {% set issues = latest.community.issues or {} %}
-    {% with id="triage-30d", title="Triage Velocity (30d)", value=(issues.median_triage_days_30d|string ~ " days" if issues.median_triage_days_30d is not none else "—"), subtitle=(issues.triage_sample_size_30d|string ~ " issues triaged" if issues.triage_sample_size_30d else none), chart_id="chart-triage-30d" %}
+    {% with id="triage-30d", title="Triage Velocity (30d)", value=(issues.median_triage_days_30d|string ~ " days" if issues.median_triage_days_30d is not none else "—"), subtitle=(issues.triage_sample_size_30d|string ~ " issues triaged" if issues.triage_sample_size_30d else none), chart_id="chart-triage-30d", tooltip="Median days from triage:todo label to triage completion (accepted or closed) for issues triaged in the last 30 days." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Triage velocity (1y) #}
-    {% with id="triage-1y", title="Triage Velocity (1y)", value=(issues.median_triage_days_1y|string ~ " days" if issues.median_triage_days_1y is not none else "—"), subtitle=(issues.triage_sample_size_1y|string ~ " issues triaged" if issues.triage_sample_size_1y else none), chart_id="chart-triage-1y" %}
+    {% with id="triage-1y", title="Triage Velocity (1y)", value=(issues.median_triage_days_1y|string ~ " days" if issues.median_triage_days_1y is not none else "—"), subtitle=(issues.triage_sample_size_1y|string ~ " issues triaged" if issues.triage_sample_size_1y else none), chart_id="chart-triage-1y", tooltip="Median days from triage:todo label to triage completion (accepted or closed) for issues triaged in the last year." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Open issues #}
-    {% with id="issues-open", title="Open Issues", value=issues.open_count, subtitle=(issues.triage_todo_count|string ~ " awaiting triage" if issues.triage_todo_count else none), chart_id="chart-issues-open" %}
+    {% with id="issues-open", title="Open Issues", value=issues.open_count, subtitle=(issues.triage_todo_count|string ~ " awaiting triage" if issues.triage_todo_count else none), chart_id="chart-issues-open", tooltip="Total open issues in the repository. Subtitle shows how many are labeled triage:todo and awaiting review." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Open PRs #}
     {% set prs = latest.community.prs or {} %}
-    {% with id="prs-open", title="Open PRs", value=prs.open_count, chart_id="chart-prs-open" %}
+    {% with id="prs-open", title="Open PRs", value=prs.open_count, chart_id="chart-prs-open", tooltip="Total number of currently open pull requests." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# PRs merged #}
-    {% with id="prs-merged", title="PRs Merged (30d)", value=prs.merged_30d, chart_id="chart-prs-merged" %}
+    {% with id="prs-merged", title="PRs Merged (30d)", value=prs.merged_30d, chart_id="chart-prs-merged", tooltip="Number of pull requests merged in the last 30 days." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Review rounds #}
-    {% with id="review-rounds", title="Median Review Rounds", value=prs.median_review_rounds, subtitle="rounds before merge" %}
+    {% with id="review-rounds", title="Review Rounds", value=prs.median_review_rounds, subtitle="median · min " ~ (prs.min_review_rounds if prs.min_review_rounds is not none else "—") ~ " · max " ~ (prs.max_review_rounds if prs.max_review_rounds is not none else "—"), tooltip="Number of review cycles before merge. 1 = approved first time, 2 = one round of changes requested, etc. Computed from PRs merged in the last 30 days." %}
+    {% include "partials/card.html.j2" %}
+    {% endwith %}
+
+    {# PR comments (open) #}
+    {% with id="pr-comments-open", title="PR Comments (Open)", value=prs.median_pr_comments_open if prs.median_pr_comments_open is not none else "—", subtitle="median · min " ~ (prs.min_pr_comments_open if prs.min_pr_comments_open is not none else "—") ~ " · max " ~ (prs.max_pr_comments_open if prs.max_pr_comments_open is not none else "—"), tooltip="Total comments (conversation + inline review) on currently open pull requests." %}
+    {% include "partials/card.html.j2" %}
+    {% endwith %}
+
+    {# PR comments (merged 30d) #}
+    {% with id="pr-comments-merged", title="PR Comments (Merged 30d)", value=prs.median_pr_comments_merged if prs.median_pr_comments_merged is not none else "—", subtitle="median · min " ~ (prs.min_pr_comments_merged if prs.min_pr_comments_merged is not none else "—") ~ " · max " ~ (prs.max_pr_comments_merged if prs.max_pr_comments_merged is not none else "—"), tooltip="Total comments (conversation + inline review) on pull requests merged in the last 30 days." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Time to first review #}
-    {% with id="time-first-review", title="Time to First Review", value=(prs.median_hours_to_first_review|string ~ "h" if prs.median_hours_to_first_review is not none else "—"), chart_id="chart-first-review" %}
+    {% with id="time-first-review", title="Time to First Review", value=(prs.median_hours_to_first_review|string ~ "h" if prs.median_hours_to_first_review is not none else "—"), chart_id="chart-first-review", tooltip="Median hours from PR creation to first human review (excluding bots). Computed from PRs merged in the last 30 days." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Time to merge #}
-    {% with id="time-merge", title="Time to Merge", value=(prs.median_hours_to_merge|string ~ "h" if prs.median_hours_to_merge is not none else "—"), chart_id="chart-time-merge" %}
+    {% with id="time-merge", title="Time to Merge", value=(prs.median_hours_to_merge|string ~ "h" if prs.median_hours_to_merge is not none else "—"), chart_id="chart-time-merge", tooltip="Median hours from PR creation to merge. Computed from PRs merged in the last 30 days." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Release cadence #}
     {% set releases = latest.community.releases or {} %}
-    {% with id="releases", title="Release Cadence", value=(releases.latest if releases.latest else "—"), subtitle=("Every ~" ~ releases.median_interval_days|string ~ " days" if releases.median_interval_days else none) %}
+    {% with id="releases", title="Release Cadence", value=(releases.latest if releases.latest else "—"), subtitle=("Every ~" ~ releases.median_interval_days|string ~ " days" if releases.median_interval_days else none), tooltip="Latest release version and median number of days between non-prerelease releases." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
@@ -83,17 +93,17 @@
     {% set ci = latest.project.ci or {} %}
     {% for wf_name, wf_data in ci.items() if wf_data is mapping %}
     {% set safe_id = wf_name | lower | replace(" ", "-") | replace("/", "-") %}
-    {% with id="ci-" ~ safe_id, title="CI: " ~ wf_name, value=(((wf_data.pass_rate_30d * 100) | round(1))|string ~ "%" if wf_data.pass_rate_30d is not none else "—"), subtitle=(wf_data.total_runs|string ~ " runs" if wf_data.total_runs else none) %}
+    {% with id="ci-" ~ safe_id, title="CI: " ~ wf_name, value=(((wf_data.pass_rate_30d * 100) | round(1))|string ~ "%" if wf_data.pass_rate_30d is not none else "—"), subtitle=(wf_data.total_runs|string ~ " runs" if wf_data.total_runs else none), tooltip="Pass rate for the " ~ wf_name ~ " CI workflow over the last 30 days." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
     {% endfor %}
 
     {# Placeholders for Phase 2+ #}
-    {% with id="coverage", title="Test Coverage", value=(latest.project.coverage_pct|string ~ "%" if latest.project.coverage_pct else "—"), subtitle="from Codecov" %}
+    {% with id="coverage", title="Test Coverage", value=(latest.project.coverage_pct|string ~ "%" if latest.project.coverage_pct else "—"), subtitle="from Codecov", tooltip="Test coverage percentage reported by Codecov." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
-    {% with id="cargo-deny", title="Dependency Health", value="—", subtitle="cargo-deny (Phase 3)" %}
+    {% with id="cargo-deny", title="Dependency Health", value="—", subtitle="cargo-deny (Phase 3)", tooltip="Dependency audit results from cargo-deny (planned)." %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 

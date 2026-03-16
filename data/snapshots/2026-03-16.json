@@ -4,17 +4,25 @@
     "issues": {
       "open_count": 218,
       "triage_todo_count": 27,
-      "median_triage_days_30d": 750.9,
-      "triage_sample_size_30d": 7,
-      "median_triage_days_1y": 568.2,
-      "triage_sample_size_1y": 11
+      "median_triage_days_30d": 609.1,
+      "triage_sample_size_30d": 35,
+      "median_triage_days_1y": 43.9,
+      "triage_sample_size_1y": 94
     },
     "prs": {
       "open_count": 79,
       "merged_30d": 31,
       "median_review_rounds": 1,
+      "min_review_rounds": 1,
+      "max_review_rounds": 2,
       "median_hours_to_first_review": 8.6,
-      "median_hours_to_merge": 29.0
+      "median_hours_to_merge": 29.0,
+      "median_pr_comments_merged": 3,
+      "min_pr_comments_merged": 0,
+      "max_pr_comments_merged": 16,
+      "median_pr_comments_open": 5,
+      "min_pr_comments_open": 0,
+      "max_pr_comments_open": 43
     },
     "releases": {
       "latest": "v0.31.0",
@@ -85,8 +93,8 @@
         "median_duration_min": 20.6
       },
       "CI": {
-        "pass_rate_30d": 0.743,
-        "total_runs": 35,
+        "pass_rate_30d": 0.722,
+        "total_runs": 36,
         "passed": 26,
         "median_duration_min": 8.5
       },
