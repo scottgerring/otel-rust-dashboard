@@ -26,53 +26,53 @@
 
     {# Triage velocity (30d) #}
     {% set issues = latest.community.issues or {} %}
-    {% with id="triage-30d", title="Triage Velocity (30d)", value=(issues.median_triage_days_30d|string ~ " days" if issues.median_triage_days_30d is not none else "—"), subtitle=(issues.triage_sample_size_30d|string ~ " issues triaged" if issues.triage_sample_size_30d else none), chart_id="chart-triage-30d", tooltip="Median days from triage:todo label to triage completion (accepted or closed) for issues triaged in the last 30 days." %}
+    {% with id="triage-30d", title="Triage Velocity (30d)", value=(issues.median_triage_days_30d|string ~ " days" if issues.median_triage_days_30d is not none else "—"), subtitle=(issues.triage_sample_size_30d|string ~ " issues triaged" if issues.triage_sample_size_30d else none), chart_id="chart-triage-30d", tooltip="Median days from triage:todo label to triage completion (accepted or closed) for issues triaged in the last 30 days.", detail_key="triage-30d" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Triage velocity (1y) #}
-    {% with id="triage-1y", title="Triage Velocity (1y)", value=(issues.median_triage_days_1y|string ~ " days" if issues.median_triage_days_1y is not none else "—"), subtitle=(issues.triage_sample_size_1y|string ~ " issues triaged" if issues.triage_sample_size_1y else none), chart_id="chart-triage-1y", tooltip="Median days from triage:todo label to triage completion (accepted or closed) for issues triaged in the last year." %}
+    {% with id="triage-1y", title="Triage Velocity (1y)", value=(issues.median_triage_days_1y|string ~ " days" if issues.median_triage_days_1y is not none else "—"), subtitle=(issues.triage_sample_size_1y|string ~ " issues triaged" if issues.triage_sample_size_1y else none), chart_id="chart-triage-1y", tooltip="Median days from triage:todo label to triage completion (accepted or closed) for issues triaged in the last year.", detail_key="triage-1y" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Open issues #}
-    {% with id="issues-open", title="Open Issues", value=issues.open_count, subtitle=(issues.triage_todo_count|string ~ " awaiting triage" if issues.triage_todo_count else none), chart_id="chart-issues-open", tooltip="Total open issues in the repository. Subtitle shows how many are labeled triage:todo and awaiting review." %}
+    {% with id="issues-open", title="Open Issues", value=issues.open_count, subtitle=(issues.triage_todo_count|string ~ " awaiting triage" if issues.triage_todo_count else none), chart_id="chart-issues-open", tooltip="Total open issues in the repository. Subtitle shows how many are labeled triage:todo and awaiting review.", detail_key="issues-open" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Open PRs #}
     {% set prs = latest.community.prs or {} %}
-    {% with id="prs-open", title="Open PRs", value=prs.open_count, chart_id="chart-prs-open", tooltip="Total number of currently open pull requests." %}
+    {% with id="prs-open", title="Open PRs", value=prs.open_count, chart_id="chart-prs-open", tooltip="Total number of currently open pull requests.", detail_key="prs-open" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# PRs merged #}
-    {% with id="prs-merged", title="PRs Merged (30d)", value=prs.merged_30d, chart_id="chart-prs-merged", tooltip="Number of pull requests merged in the last 30 days." %}
+    {% with id="prs-merged", title="PRs Merged (30d)", value=prs.merged_30d, chart_id="chart-prs-merged", tooltip="Number of pull requests merged in the last 30 days.", detail_key="prs-merged" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Review rounds #}
-    {% with id="review-rounds", title="Review Rounds", value=prs.median_review_rounds, subtitle="median · min " ~ (prs.min_review_rounds if prs.min_review_rounds is not none else "—") ~ " · max " ~ (prs.max_review_rounds if prs.max_review_rounds is not none else "—"), tooltip="Number of review cycles before merge. 1 = approved first time, 2 = one round of changes requested, etc. Computed from PRs merged in the last 30 days." %}
+    {% with id="review-rounds", title="Review Rounds", value=prs.median_review_rounds, subtitle="median · min " ~ (prs.min_review_rounds if prs.min_review_rounds is not none else "—") ~ " · max " ~ (prs.max_review_rounds if prs.max_review_rounds is not none else "—"), tooltip="Number of review cycles before merge. 1 = approved first time, 2 = one round of changes requested, etc. Computed from PRs merged in the last 30 days.", detail_key="review-rounds" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# PR comments (open) #}
-    {% with id="pr-comments-open", title="PR Comments (Open)", value=prs.median_pr_comments_open if prs.median_pr_comments_open is not none else "—", subtitle="median · min " ~ (prs.min_pr_comments_open if prs.min_pr_comments_open is not none else "—") ~ " · max " ~ (prs.max_pr_comments_open if prs.max_pr_comments_open is not none else "—"), tooltip="Total comments (conversation + inline review) on currently open pull requests." %}
+    {% with id="pr-comments-open", title="PR Comments (Open)", value=prs.median_pr_comments_open if prs.median_pr_comments_open is not none else "—", subtitle="median · min " ~ (prs.min_pr_comments_open if prs.min_pr_comments_open is not none else "—") ~ " · max " ~ (prs.max_pr_comments_open if prs.max_pr_comments_open is not none else "—"), tooltip="Total comments (conversation + inline review) on currently open pull requests.", detail_key="pr-comments-open" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# PR comments (merged 30d) #}
-    {% with id="pr-comments-merged", title="PR Comments (Merged 30d)", value=prs.median_pr_comments_merged if prs.median_pr_comments_merged is not none else "—", subtitle="median · min " ~ (prs.min_pr_comments_merged if prs.min_pr_comments_merged is not none else "—") ~ " · max " ~ (prs.max_pr_comments_merged if prs.max_pr_comments_merged is not none else "—"), tooltip="Total comments (conversation + inline review) on pull requests merged in the last 30 days." %}
+    {% with id="pr-comments-merged", title="PR Comments (Merged 30d)", value=prs.median_pr_comments_merged if prs.median_pr_comments_merged is not none else "—", subtitle="median · min " ~ (prs.min_pr_comments_merged if prs.min_pr_comments_merged is not none else "—") ~ " · max " ~ (prs.max_pr_comments_merged if prs.max_pr_comments_merged is not none else "—"), tooltip="Total comments (conversation + inline review) on pull requests merged in the last 30 days.", detail_key="pr-comments-merged" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Time to first review #}
-    {% with id="time-first-review", title="Time to First Review", value=(prs.median_hours_to_first_review|string ~ "h" if prs.median_hours_to_first_review is not none else "—"), chart_id="chart-first-review", tooltip="Median hours from PR creation to first human review (excluding bots). Computed from PRs merged in the last 30 days." %}
+    {% with id="time-first-review", title="Time to First Review", value=(prs.median_hours_to_first_review|string ~ "h" if prs.median_hours_to_first_review is not none else "—"), chart_id="chart-first-review", tooltip="Median hours from PR creation to first human review (excluding bots). Computed from PRs merged in the last 30 days.", detail_key="time-first-review" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
     {# Time to merge #}
-    {% with id="time-merge", title="Time to Merge", value=(prs.median_hours_to_merge|string ~ "h" if prs.median_hours_to_merge is not none else "—"), chart_id="chart-time-merge", tooltip="Median hours from PR creation to merge. Computed from PRs merged in the last 30 days." %}
+    {% with id="time-merge", title="Time to Merge", value=(prs.median_hours_to_merge|string ~ "h" if prs.median_hours_to_merge is not none else "—"), chart_id="chart-time-merge", tooltip="Median hours from PR creation to merge. Computed from PRs merged in the last 30 days.", detail_key="time-merge" %}
     {% include "partials/card.html.j2" %}
     {% endwith %}
 
@@ -116,9 +116,26 @@
   <p>Generated by <a href="https://github.com/scottgerring/otel-rust-dashboard">otel-rust-dashboard</a></p>
 </footer>
 
+{# Detail modal overlay #}
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-modal">
+    <div class="detail-modal-header">
+      <h3 id="detail-title"></h3>
+      <button class="detail-close" id="detail-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="detail-modal-body">
+      <table class="detail-table">
+        <thead id="detail-thead"></thead>
+        <tbody id="detail-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 {# Inline the trend data so Chart.js can use it without a fetch #}
 <script>
 const TRENDS = {{ trends | tojson }};
+const DETAILS = {{ details | tojson }};
 </script>
 <script src="dashboard.js"></script>
 

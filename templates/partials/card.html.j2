@@ -1,7 +1,7 @@
 {# Reusable metric card partial.
-   Args: id, title, value, subtitle (optional), chart_id (optional), color (optional), tooltip (optional)
+   Args: id, title, value, subtitle (optional), chart_id (optional), color (optional), tooltip (optional), detail_key (optional)
 #}
-<div class="card" id="card-{{ id }}">
+<div class="card{% if detail_key %} card-clickable{% endif %}" id="card-{{ id }}"{% if detail_key %} data-detail-key="{{ detail_key }}"{% endif %}>
   <div class="card-header">
     <h3>{{ title }}</h3>
     {% if tooltip %}

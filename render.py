@@ -73,6 +73,40 @@ def build_trends(snapshots):
     return trends
 
 
+def extract_details(latest):
+    """Extract per-item detail arrays from the latest snapshot for popup tables."""
+    details = {}
+
+    issues = latest.get("community", {}).get("issues") or {}
+    prs = latest.get("community", {}).get("prs") or {}
+
+    # Issue details
+    for key in ("triage_detail_30d", "triage_detail_1y", "open_issues_detail"):
+        if key in issues:
+            card_id = {
+                "triage_detail_30d": "triage-30d",
+                "triage_detail_1y": "triage-1y",
+                "open_issues_detail": "issues-open",
+            }[key]
+            details[card_id] = issues[key]
+
+    # PR details
+    pr_detail_keys = {
+        "open_prs_detail": "prs-open",
+        "merged_prs_detail": "prs-merged",
+        "first_review_detail": "time-first-review",
+        "time_to_merge_detail": "time-merge",
+        "review_rounds_detail": "review-rounds",
+        "pr_comments_open_detail": "pr-comments-open",
+        "pr_comments_merged_detail": "pr-comments-merged",
+    }
+    for key, card_id in pr_detail_keys.items():
+        if key in prs:
+            details[card_id] = prs[key]
+
+    return details
+
+
 def main():
     snapshots = load_snapshots()
     if not snapshots:
@@ -81,6 +115,7 @@ def main():
 
     latest = snapshots[-1]
     trends = build_trends(snapshots)
+    details = extract_details(latest)
 
     # Set up Jinja2
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=True)
@@ -89,6 +124,7 @@ def main():
     html = template.render(
         latest=latest,
         trends=trends,
+        details=details,
         snapshot_count=len(snapshots),
     )
 

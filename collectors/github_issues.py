@@ -42,6 +42,8 @@ query($owner: String!, $name: String!, $cursor: String) {
       pageInfo { hasNextPage endCursor }
       nodes {
         number
+        title
+        url
         createdAt
         timelineItems(first: 100, itemTypes: [LABELED_EVENT]) {
           nodes {
@@ -71,6 +73,8 @@ query($owner: String!, $name: String!, $cursor: String) {
       pageInfo { hasNextPage endCursor }
       nodes {
         number
+        title
+        url
         createdAt
         closedAt
         labels(first: 10) { nodes { name } }
@@ -82,6 +86,60 @@ query($owner: String!, $name: String!, $cursor: String) {
             }
           }
         }
+      }
+    }
+  }
+}
+"""
+
+# Query 4: fetch open issues with triage:todo label for untriaged detail
+TRIAGE_TODO_QUERY = """
+query($owner: String!, $name: String!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    issues(
+      first: 100,
+      states: [OPEN],
+      labels: ["triage:todo"],
+      orderBy: {field: UPDATED_AT, direction: DESC},
+      after: $cursor
+    ) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        number
+        title
+        url
+        createdAt
+        timelineItems(first: 100, itemTypes: [LABELED_EVENT]) {
+          nodes {
+            ... on LabeledEvent {
+              createdAt
+              label { name }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+# Query 5: fetch open issues for the open issues detail list
+OPEN_ISSUES_QUERY = """
+query($owner: String!, $name: String!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    issues(
+      first: 100,
+      states: [OPEN],
+      orderBy: {field: CREATED_AT, direction: DESC},
+      after: $cursor
+    ) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        number
+        title
+        url
+        createdAt
+        labels(first: 10) { nodes { name } }
       }
     }
   }
@@ -113,6 +171,10 @@ def _compute_triage_times_accepted(issues):
                 triage_durations.append({
                     "days": round(days, 1),
                     "completed_at": accepted_at,
+                    "number": issue["number"],
+                    "title": issue.get("title", ""),
+                    "url": issue.get("url", ""),
+                    "status": "Accepted",
                 })
 
     return triage_durations
@@ -159,6 +221,10 @@ def _compute_triage_times_closed(issues, cutoff):
             triage_durations.append({
                 "days": round(days, 1),
                 "completed_at": closed_at,
+                "number": issue["number"],
+                "title": issue.get("title", ""),
+                "url": issue.get("url", ""),
+                "status": "Closed",
             })
 
     return triage_durations
@@ -243,8 +309,113 @@ def collect(config):
     # 5. Split into 30d and 1y windows
     cutoff_30d = now - timedelta(days=30)
 
-    durations_30d = [e["days"] for e in triage_entries if e["completed_at"] >= cutoff_30d]
-    durations_1y = [e["days"] for e in triage_entries if e["completed_at"] >= cutoff_1y]
+    entries_30d = [e for e in triage_entries if e["completed_at"] >= cutoff_30d]
+    entries_1y = [e for e in triage_entries if e["completed_at"] >= cutoff_1y]
+
+    durations_30d = [e["days"] for e in entries_30d]
+    durations_1y = [e["days"] for e in entries_1y]
+
+    # 6. Fetch triage:todo open issues for untriaged detail rows
+    todo_issues = []
+    cursor = None
+    for _ in range(3):
+        resp = requests.post(
+            GRAPHQL_URL,
+            json={"query": TRIAGE_TODO_QUERY, "variables": {"owner": owner, "name": name, "cursor": cursor}},
+            headers=_headers(),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        page = resp.json()["data"]["repository"]["issues"]
+        todo_issues.extend(page["nodes"])
+        if not page["pageInfo"]["hasNextPage"]:
+            break
+        cursor = page["pageInfo"]["endCursor"]
+
+    # Build untriaged detail rows
+    untriaged_rows = []
+    for issue in todo_issues:
+        timeline = issue["timelineItems"]["nodes"]
+        todo_at = None
+        for event in timeline:
+            if not event:
+                continue
+            if event.get("label", {}).get("name") == "triage:todo" and todo_at is None:
+                todo_at = datetime.fromisoformat(event["createdAt"].replace("Z", "+00:00"))
+        start = todo_at or datetime.fromisoformat(issue["createdAt"].replace("Z", "+00:00"))
+        days = round((now - start).total_seconds() / 86400, 1)
+        untriaged_rows.append({
+            "number": issue["number"],
+            "title": issue.get("title", ""),
+            "url": issue.get("url", ""),
+            "sort_value": days,
+            "extra": {"status": "Awaiting Triage"},
+        })
+
+    # 7. Build detail lists for triage cards
+    def _build_triage_detail(entries, untriaged=None):
+        rows = []
+        if untriaged:
+            rows.extend(sorted(untriaged, key=lambda r: r["sort_value"], reverse=True))
+        triaged_rows = [{
+            "number": e["number"],
+            "title": e["title"],
+            "url": e["url"],
+            "sort_value": e["days"],
+            "extra": {"status": e["status"]},
+        } for e in sorted(entries, key=lambda e: e["days"], reverse=True)]
+        rows.extend(triaged_rows)
+        return {
+            "title": None,  # will be set per-card below
+            "sort_column": "Days",
+            "columns": ["#", "Title", "Days", "Status"],
+            "rows": rows,
+        }
+
+    triage_detail_30d = _build_triage_detail(entries_30d, untriaged_rows)
+    triage_detail_30d["title"] = "Triage Velocity (30d)"
+
+    triage_detail_1y = _build_triage_detail(entries_1y, untriaged_rows)
+    triage_detail_1y["title"] = "Triage Velocity (1y)"
+
+    # 8. Fetch open issues for detail list
+    open_issues_list = []
+    cursor = None
+    for _ in range(5):
+        resp = requests.post(
+            GRAPHQL_URL,
+            json={"query": OPEN_ISSUES_QUERY, "variables": {"owner": owner, "name": name, "cursor": cursor}},
+            headers=_headers(),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        page = resp.json()["data"]["repository"]["issues"]
+        open_issues_list.extend(page["nodes"])
+        if not page["pageInfo"]["hasNextPage"]:
+            break
+        cursor = page["pageInfo"]["endCursor"]
+
+    open_issues_detail = {
+        "title": "Open Issues",
+        "sort_column": "Age (days)",
+        "columns": ["#", "Title", "Age (days)", "Labels"],
+        "rows": [],
+    }
+    for issue in open_issues_list:
+        created = datetime.fromisoformat(issue["createdAt"].replace("Z", "+00:00"))
+        age_days = round((now - created).total_seconds() / 86400, 1)
+        labels = ", ".join(
+            n["name"] for n in (issue.get("labels", {}).get("nodes") or [])
+        )
+        open_issues_detail["rows"].append({
+            "number": issue["number"],
+            "title": issue.get("title", ""),
+            "url": issue.get("url", ""),
+            "sort_value": age_days,
+            "extra": {"labels": labels},
+        })
+    # Sort by age descending (oldest first)
+    open_issues_detail["rows"].sort(key=lambda r: r["sort_value"], reverse=True)
 
     return {
         "open_count": open_count,
@@ -253,4 +424,7 @@ def collect(config):
         "triage_sample_size_30d": len(durations_30d),
         "median_triage_days_1y": _median(durations_1y),
         "triage_sample_size_1y": len(durations_1y),
+        "triage_detail_30d": triage_detail_30d,
+        "triage_detail_1y": triage_detail_1y,
+        "open_issues_detail": open_issues_detail,
     }
